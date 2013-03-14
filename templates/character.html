@@ -30,7 +30,8 @@
 				<tr>
 					<th>STR</th>
 					<td>
-						<input type="number" class="input-mini"
+						<input type="number" min="1" max="20"
+						       class="input-mini ability"
 						       value="{{ character.strength }}" />
 					</td>
 					<td><span class="input-mini uneditable-input">0</span></td>
@@ -38,7 +39,8 @@
 				<tr>
 					<th>DEX</th>
 					<td>
-						<input type="number" class="input-mini"
+						<input type="number" min="1" max="20"
+						       class="input-mini ability"
 						       value="{{ character.dexterity }}" />
 					</td>
 					<td>
@@ -48,7 +50,8 @@
 				<tr>
 					<th>CON</th>
 					<td>
-						<input type="number" class="input-mini"
+						<input type="number" min="1" max="20"
+						       class="input-mini ability"
 						       value="{{ character.constitution }}" />
 					</td>
 					<td>
@@ -58,7 +61,8 @@
 				<tr>
 					<th>INT</th>
 					<td>
-						<input type="number" class="input-mini"
+						<input type="number" min="1" max="20"
+						       class="input-mini ability"
 						       value="{{ character.intelligence }}" />
 					</td>
 					<td>
@@ -68,7 +72,8 @@
 				<tr>
 					<th>WIS</th>
 					<td>
-						<input type="number" class="input-mini"
+						<input type="number" min="1" max="20"
+						       class="input-mini ability"
 						       value="{{ character.wisdom }}" />
 					</td>
 					<td>
@@ -78,7 +83,8 @@
 				<tr>
 					<th>CHA</th>
 					<td>
-						<input type="number" class="input-mini"
+						<input type="number" min="1" max="20"
+						       class="input-mini ability"
 						       value="{{ character.charisma }}" />
 					</td>
 					<td>
@@ -107,6 +113,16 @@
 <script type="text/javascript">
 	$(document).ready(function ()
 	{
+		function updateAbilityMod()
+		{
+			var score = $(this).val();
+			var mod = Math.floor((score - 10) / 2);
+			$(this).parent().next().children().first().text(mod);
+		}
+		
+		$('.ability').each(updateAbilityMod);
+		$('.ability').change(updateAbilityMod);
+
 		$('#delete-btn').click(function ()
 		{
 			$('#delete-btn').button('loading');
