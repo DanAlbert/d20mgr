@@ -68,7 +68,7 @@ class CharacterHandler(RequestHandler):
                                      key=character.key.urlsafe()))
 
     def delete(self, key):
-        return self.render('character-create')
+        character = ndb.Key(urlsafe=key).delete()
 
 
 app = webapp2.WSGIApplication([
@@ -79,6 +79,6 @@ app = webapp2.WSGIApplication([
                   handler=CharacterHandler, handler_method='create'),
     webapp2.Route(r'/character/<key>', name='character-show',
                   handler=CharacterHandler),
-    webapp2.Route(r'/character/<key>/delete', name='character-delete',
-                  handler=CharacterHandler),
+    webapp2.Route(r'/character/<key>', name='character-delete',
+                  handler=CharacterHandler, methods=['DELETE']),
 ], debug=True)

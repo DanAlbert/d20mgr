@@ -2,11 +2,148 @@
 
 {% block content %}
 {% if character %}
-<h1>{{ character.name }}</h1>
+<form>
+	<fieldset>
+		<div id="legend">
+			<legend>Character Sheet</legend>
+		</div>
+
+		<label for="name">Name</label>
+		<input id="name" type="text" placeholder="Name" value="{{ character.name }}" />
+
+		<label>Race</label>
+		<input type="text" placeholder="Race" />
+
+		<label>Classes</label>
+		<input type="text" placeholder="Class Name">
+		<input type="number" value="1" class="input-mini" />
+
+		<table>
+			<thead>
+				<tr>
+					<th>Ability</th>
+					<th>Score</th>
+					<th>Modifier</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<th>STR</th>
+					<td>
+						<input type="number" class="input-mini"
+						       value="{{ character.strength }}" />
+					</td>
+					<td><span class="input-mini uneditable-input">0</span></td>
+				</tr>
+				<tr>
+					<th>DEX</th>
+					<td>
+						<input type="number" class="input-mini"
+						       value="{{ character.dexterity }}" />
+					</td>
+					<td>
+							<span class="input-mini uneditable-input">0</span>
+					</td>
+				</tr>
+				<tr>
+					<th>CON</th>
+					<td>
+						<input type="number" class="input-mini"
+						       value="{{ character.constitution }}" />
+					</td>
+					<td>
+							<span class="input-mini uneditable-input">0</span>
+					</td>
+				</tr>
+				<tr>
+					<th>INT</th>
+					<td>
+						<input type="number" class="input-mini"
+						       value="{{ character.intelligence }}" />
+					</td>
+					<td>
+							<span class="input-mini uneditable-input">0</span>
+					</td>
+				</tr>
+				<tr>
+					<th>WIS</th>
+					<td>
+						<input type="number" class="input-mini"
+						       value="{{ character.wisdom }}" />
+					</td>
+					<td>
+							<span class="input-mini uneditable-input">0</span>
+					</td>
+				</tr>
+				<tr>
+					<th>CHA</th>
+					<td>
+						<input type="number" class="input-mini"
+						       value="{{ character.charisma }}" />
+					</td>
+					<td>
+							<span class="input-mini uneditable-input">0</span>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</fieldset>
+	<div class="form-actions">
+		<span id="form-errors"></span>
+		<button type="button" class="btn btn-primary">Save Character</button>
+		<button id="delete-btn" type="button" class="btn btn-danger"
+		        data-loading-text="Deleting...">Delete Character</button>
+	</div>
+</form>
 {% else %}
 <p>
 	An error occured while loading your character. Please refresh the page to
 	try again.
 </p>
 {% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+	$(document).ready(function ()
+	{
+		$('#delete-btn').click(function ()
+		{
+			$('#delete-btn').button('loading');
+			$.ajax({
+				url: '{{ uri_for("character-delete",
+				      key=character.key.urlsafe()) }}',
+				type: 'DELETE',
+				data: { key: '{{ character.key.urlsafe() }}' }
+			})
+			.done(function ()
+			{
+				var timeout = 3;
+				$('#content').html(
+					'<p class="text-success">Character deleted. Returning to ' +
+					'character list in <span id="counter">' + timeout +
+					'</span>...</p>');
+				setTimeout(function ()
+				{
+					window.location.replace('{{ uri_for("character-list") }}');
+				}, timeout * 1000);
+				setTimeout(function countdown()
+				{
+					var count = $('#counter').text();
+					if (count > 0)
+					{
+						setTimeout(countdown, 1000);
+					}
+					$('#counter').text(--count);
+				}, 1000);
+			})
+			.fail(function()
+			{
+				$('#delete-btn').button('reset');
+				$('#form-errors').html('<p class="text-error">An error ' +
+					'occured. Please refresh the page and try again.</p>');
+			});
+		});
+	});
+</script>
 {% endblock %}

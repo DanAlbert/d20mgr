@@ -11,17 +11,17 @@ class Character(ndb.Model):
     name = ndb.StringProperty("Character name", default="New Character")
     owner = ndb.UserProperty("")
 
-    strength = ndb.IntegerProperty()
-    dexterity = ndb.IntegerProperty()
-    constitution = ndb.IntegerProperty()
-    intelligence = ndb.IntegerProperty()
-    wisdom = ndb.IntegerProperty()
-    charisma = ndb.IntegerProperty()
+    strength = ndb.IntegerProperty(default=10)
+    dexterity = ndb.IntegerProperty(default=10)
+    constitution = ndb.IntegerProperty(default=10)
+    intelligence = ndb.IntegerProperty(default=10)
+    wisdom = ndb.IntegerProperty(default=10)
+    charisma = ndb.IntegerProperty(default=10)
 
-    base_attack_bonus = ndb.IntegerProperty()
-    fortitue = ndb.IntegerProperty()
-    reflex = ndb.IntegerProperty()
-    will = ndb.IntegerProperty()
+    base_attack_bonus = ndb.IntegerProperty(default=10)
+    fortitue = ndb.IntegerProperty(default=10)
+    reflex = ndb.IntegerProperty(default=10)
+    will = ndb.IntegerProperty(default=10)
 
     classes = ndb.PickleProperty("Serialized dictionary of the character's" +
                                "classes")
