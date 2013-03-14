@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% if character %}
+<h1>{{ character.name }}</h1>
+{% else %}
+<p>
+	An error occured while loading your character. Please refresh the page to
+	try again.
+</p>
+{% endif %}
+{% endblock %}

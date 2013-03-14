@@ -1,3 +1,6 @@
+# vim temp files
+.*~
+
 *.py[cod]
 
 # C extensions
