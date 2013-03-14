@@ -27,70 +27,22 @@
 				</tr>
 			</thead>
 			<tbody>
+				{% for (text, score) in [('STR', character.strength),
+				                         ('DEX', character.dexterity),
+				                         ('CON', character.constitution),
+				                         ('INT', character.intelligence),
+				                         ('WIS', character.wisdom),
+										 ('CHA', character.charisma)] %}
 				<tr>
-					<th>STR</th>
+					<th>{{ text }}</th>
 					<td>
 						<input type="number" min="1" max="20"
 						       class="input-mini ability"
-						       value="{{ character.strength }}" />
+						       value="{{ score }}" />
 					</td>
 					<td><span class="input-mini uneditable-input">0</span></td>
 				</tr>
-				<tr>
-					<th>DEX</th>
-					<td>
-						<input type="number" min="1" max="20"
-						       class="input-mini ability"
-						       value="{{ character.dexterity }}" />
-					</td>
-					<td>
-							<span class="input-mini uneditable-input">0</span>
-					</td>
-				</tr>
-				<tr>
-					<th>CON</th>
-					<td>
-						<input type="number" min="1" max="20"
-						       class="input-mini ability"
-						       value="{{ character.constitution }}" />
-					</td>
-					<td>
-							<span class="input-mini uneditable-input">0</span>
-					</td>
-				</tr>
-				<tr>
-					<th>INT</th>
-					<td>
-						<input type="number" min="1" max="20"
-						       class="input-mini ability"
-						       value="{{ character.intelligence }}" />
-					</td>
-					<td>
-							<span class="input-mini uneditable-input">0</span>
-					</td>
-				</tr>
-				<tr>
-					<th>WIS</th>
-					<td>
-						<input type="number" min="1" max="20"
-						       class="input-mini ability"
-						       value="{{ character.wisdom }}" />
-					</td>
-					<td>
-							<span class="input-mini uneditable-input">0</span>
-					</td>
-				</tr>
-				<tr>
-					<th>CHA</th>
-					<td>
-						<input type="number" min="1" max="20"
-						       class="input-mini ability"
-						       value="{{ character.charisma }}" />
-					</td>
-					<td>
-							<span class="input-mini uneditable-input">0</span>
-					</td>
-				</tr>
+				{% endfor %}
 			</tbody>
 		</table>
 	</fieldset>
