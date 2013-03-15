@@ -5,6 +5,7 @@ Author: Dan Albert <dan@gingerhq.net>
 import webapp2
 from webapp2 import uri_for
 
+from google.appengine.api import users
 from google.appengine.ext import ndb
 
 import jinja2
@@ -56,16 +57,26 @@ class RequestHandler(webapp2.RequestHandler):
 
 class CharacterListHandler(RequestHandler):
     def get(self):
-        return self.render('character-list', {'characters': Character.query()})
+        chars_tmp = Character.query().fetch()
+        characters = []
+        for character in chars_tmp:
+            if character.owner.user_id() == auth.current_user().user_id():
+                characters.append(character)
+        return self.render('character-list', {'characters': characters})
 
 
 class CharacterHandler(RequestHandler):
     def get(self, key):
+        if not auth.logged_in():
+            return self.redirect(users.create_login_url(self.request.url))
         character = ndb.Key(urlsafe=key).get()
-        logging.info(character.classes)
+        if character.owner.user_id() != auth.current_user().user_id():
+            return webapp2.abort(401)
         return self.render('character', {'character': character})
 
     def create(self):
+        if not auth.logged_in():
+            return self.redirect(users.create_login_url(self.request.url))
         character = Character(owner=auth.current_user())
         character.put()
         return self.redirect(uri_for('character',
@@ -73,6 +84,8 @@ class CharacterHandler(RequestHandler):
 
     def post(self, key):
         character = ndb.Key(urlsafe=key).get()
+        if character.owner.user_id() != auth.current_user().user_id():
+            return webapp2.abort(401)
         form = json.loads(self.request.get('form'))
         character.name = form['name']
         character.race = form['race']
@@ -95,7 +108,11 @@ class CharacterHandler(RequestHandler):
         character.put()
 
     def delete(self, key):
-        character = ndb.Key(urlsafe=key).delete()
+        key = ndb.Key(urlsafe=key)
+        character = key.get()
+        if character.owner.user_id() != auth.current_user().user_id():
+            return webapp2.abort(401)
+        key.delete()
 
 
 class ApiListHandler(RequestHandler):
@@ -103,9 +120,10 @@ class ApiListHandler(RequestHandler):
         characters = Character.query().fetch()
         character_dicts = []
         for character in characters:
-            character_dict = character.to_dict(exclude=['owner'])
-            character_dict['key'] = character.key.urlsafe()
-            character_dicts.append(character_dict)
+            if character.owner.user_id() == auth.current_user().user_id():
+                character_dict = character.to_dict(exclude=['owner'])
+                character_dict['key'] = character.key.urlsafe()
+                character_dicts.append(character_dict)
 
         self.response.headers['Content-Type'] = 'text/json'
         self.response.out.write(json.dumps(character_dicts))
@@ -119,6 +137,8 @@ class ApiListHandler(RequestHandler):
 class ApiHandler(RequestHandler):
     def get(self, key):
         character = ndb.Key(urlsafe=key).get()
+        if character.owner.user_id() != auth.current_user().user_id():
+            return webapp2.abort(401)
         character_dict = character.to_dict(exclude=['owner'])
         character_dict['key'] = character.key.urlsafe()
         self.response.headers['Content-Type'] = 'text/json'
@@ -126,6 +146,8 @@ class ApiHandler(RequestHandler):
 
     def post(self, key):
         character = ndb.Key(urlsafe=key).get()
+        if character.owner.user_id() != auth.current_user().user_id():
+            return webapp2.abort(401)
         form = json.loads(self.request.get('form'))
         try:
             character.name = form['name']
@@ -179,7 +201,11 @@ class ApiHandler(RequestHandler):
         character.put()
 
     def delete(self, key):
-        character = ndb.Key(urlsafe=key).delete()
+        key = ndb.Key(urlsafe=key)
+        character = key.get()
+        if character.owner.user_id() != auth.current_user().user_id():
+            webapp2.abort(401)
+        key.delete()
 
 
 app = webapp2.WSGIApplication([

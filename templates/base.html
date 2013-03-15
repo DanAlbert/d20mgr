@@ -20,7 +20,9 @@
 					<ul class="nav pull-right">
 						{% if user %}
 						<li>
-							<p class="navbar-text">Logged in as {{ user }}</p>
+							<p class="navbar-text">
+								Logged in as {{ user.nickname() }}
+							</p>
 						</li>
 						{% endif %}
 						<li><a href="{{ login_url }}">{{ login_text }}</a></li>
