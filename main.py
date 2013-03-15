@@ -124,6 +124,63 @@ class ApiHandler(RequestHandler):
         self.response.headers['Content-Type'] = 'text/json'
         self.response.out.write(json.dumps(character_dict))
 
+    def post(self, key):
+        character = ndb.Key(urlsafe=key).get()
+        form = json.loads(self.request.get('form'))
+        try:
+            character.name = form['name']
+        except KeyError:
+            pass
+
+        try:
+            character.race = form['race']
+        except KeyError:
+            pass
+
+        try:
+            character.strength = int(form['str'])
+        except KeyError:
+            pass
+
+        try:
+            character.dexterity = int(form['dex'])
+        except KeyError:
+            pass
+
+        try:
+            character.constitution = int(form['con'])
+        except KeyError:
+            pass
+
+        try:
+            character.intelligence = int(form['int'])
+        except KeyError:
+            pass
+
+        try:
+            character.wisdom = int(form['wis'])
+        except KeyError:
+            pass
+
+        try:
+            character.charisma = int(form['cha'])
+        except KeyError:
+            pass
+
+        try:
+            if isinstance(form['class-name'], list):
+                character.classes = dict(zip(form['class-name'],
+                                             form['class-level']))
+            else:
+                character.classes = {form['class-name']: form['class-level']}
+        except KeyError:
+            pass
+
+        character.put()
+
+    def delete(self, key):
+        character = ndb.Key(urlsafe=key).delete()
+
 
 app = webapp2.WSGIApplication([
     ('/', CharacterListHandler),
