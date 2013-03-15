@@ -8,7 +8,7 @@
 	{% for character in characters %}
 	<li>
 		<a href="{{ uri_for('character', key=character.key.urlsafe()) }}">
-			{{ character }}</a>
+			{{ character.name|default('Unnamed Character', true) }}</a>
 	</li>
 	{% endfor %}
 </ul>

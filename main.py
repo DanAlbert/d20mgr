@@ -12,6 +12,7 @@ import jinja2
 import json
 import logging
 import os
+import urllib2
 
 import auth
 import settings
@@ -83,8 +84,11 @@ class CharacterHandler(RequestHandler):
         character.charisma = int(form['cha'])
 
         try:
-            character.classes = dict(zip(form['class-name'],
-                                         form['class-level']))
+            if isinstance(form['class-name'], list):
+                character.classes = dict(zip(form['class-name'],
+                                             form['class-level']))
+            else:
+                character.classes = {form['class-name']: form['class-level']}
         except KeyError:
             pass
 
@@ -92,6 +96,33 @@ class CharacterHandler(RequestHandler):
 
     def delete(self, key):
         character = ndb.Key(urlsafe=key).delete()
+
+
+class ApiListHandler(RequestHandler):
+    def get(self):
+        characters = Character.query().fetch()
+        character_dicts = []
+        for character in characters:
+            character_dict = character.to_dict(exclude=['owner'])
+            character_dict['key'] = character.key.urlsafe()
+            character_dicts.append(character_dict)
+
+        self.response.headers['Content-Type'] = 'text/json'
+        self.response.out.write(json.dumps(character_dicts))
+
+    def put(self):
+        character = Character(owner=auth.current_user())
+        character.put()
+        self.response.out.write(json.dumps({'key': character.key.urlsafe()}))
+
+
+class ApiHandler(RequestHandler):
+    def get(self, key):
+        character = ndb.Key(urlsafe=key).get()
+        character_dict = character.to_dict(exclude=['owner'])
+        character_dict['key'] = character.key.urlsafe()
+        self.response.headers['Content-Type'] = 'text/json'
+        self.response.out.write(json.dumps(character_dict))
 
 
 app = webapp2.WSGIApplication([
@@ -102,4 +133,8 @@ app = webapp2.WSGIApplication([
                   handler=CharacterHandler, handler_method='create'),
     webapp2.Route(r'/character/<key>', name='character',
                   handler=CharacterHandler, methods=['GET', 'POST', 'DELETE']),
+    webapp2.Route(r'/api/character', name='api-character-list',
+                  handler=ApiListHandler, methods=['GET', 'PUT']),
+    webapp2.Route(r'/api/character/<key>', name='api-character',
+                  handler=ApiHandler, methods=['GET', 'POST', 'DELETE']),
 ], debug=True)

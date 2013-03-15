@@ -105,11 +105,12 @@
 			addon.append('<span class="span1 add-on">LVL</span>');
 			addon.append('<input name="class-level" type="number" ' +
 			             'class="input-mini" min="1" max="20" value="1" />');
-			row.append('<button type="button" class="btn btn-danger span2 ' +
-			           'remove-class-btn">Remove Class</button>');
-			row.click(function ()
+			var button = $('<button type="button" class="btn btn-danger ' +
+			               'span2 remove-class-btn">Remove Class</button>');
+			row.append(button);
+			button.click(function ()
 			{
-				$(this).remove();
+				$(this).parent().remove();
 			});
 		});
 
@@ -155,13 +156,14 @@
 			.done(function ()
 			{
 				var timeout = 3;
+				var next = '{{ uri_for("character-list") }}';
 				$('#content').html(
 					'<p class="text-success">Character deleted. Returning to ' +
 					'character list in <span id="counter">' + timeout +
-					'</span>...</p>');
+					'</span>...</p><a href="' + next + '">Go now</a>');
 				setTimeout(function ()
 				{
-					window.location.replace('{{ uri_for("character-list") }}');
+					window.location.replace(next);
 				}, timeout * 1000);
 				setTimeout(function countdown()
 				{
