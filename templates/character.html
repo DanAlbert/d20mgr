@@ -2,17 +2,19 @@
 
 {% block content %}
 {% if character %}
-<form>
+<form id="character-sheet">
 	<fieldset>
 		<div id="legend">
 			<legend>Character Sheet</legend>
 		</div>
 
 		<label for="name">Name</label>
-		<input id="name" type="text" placeholder="Name" value="{{ character.name }}" />
+		<input id="name" name="name" type="text" placeholder="Name"
+		       value="{{ character.name }}" />
 
-		<label>Race</label>
-		<input type="text" placeholder="Race" />
+		<label for="race">Race</label>
+		<input id="race" type="text" name="race" placeholder="Race"
+		       value="{{ character.race }}" />
 
 		<label>Classes</label>
 		<input type="text" placeholder="Class Name">
@@ -38,7 +40,7 @@
 					<td>
 						<input type="number" min="1" max="20"
 						       class="input-mini ability"
-						       value="{{ score }}" />
+							   name="{{ text.lower() }}" value="{{ score }}" />
 					</td>
 					<td><span class="input-mini uneditable-input">0</span></td>
 				</tr>
@@ -47,14 +49,15 @@
 		</table>
 	</fieldset>
 	<div class="form-actions">
-		<span id="form-errors"></span>
-		<button type="button" class="btn btn-primary">Save Character</button>
+		<button id="save-btn" type="button" class="btn btn-primary"
+		        data-loading-text="Saving...">Save Character</button>
 		<button id="delete-btn" type="button" class="btn btn-danger"
 		        data-loading-text="Deleting...">Delete Character</button>
+		<span id="form-errors" class="pull-right"></span>
 	</div>
 </form>
 {% else %}
-<p>
+<p class="text-error">
 	An error occured while loading your character. Please refresh the page to
 	try again.
 </p>
@@ -75,14 +78,39 @@
 		$('.ability').each(updateAbilityMod);
 		$('.ability').change(updateAbilityMod);
 
+		$('#save-btn').click(function ()
+		{
+			$('#save-btn').button('loading');
+			var json = JSON.stringify($('#character-sheet').serializeObject());
+			$.ajax({
+				url: '{{ uri_for("character",
+				                 key=character.key.urlsafe()) }}',
+				type: 'POST',
+				data: {'form': json},
+			})
+			.done(function ()
+			{
+				$('#save-btn').button('reset');
+				var msg = $('<p class="text-success">Character information ' +
+				            'saved.</p>');
+				$('#form-errors').html(msg);
+				msg.fadeOut(2000);
+			})
+			.fail(function ()
+			{
+				$('#save-btn').button('reset');
+				$('#form-errors').html('<p class="text-error">An error ' +
+					'occured. Please refresh the page and try again.</p>');
+			});
+		});
+
 		$('#delete-btn').click(function ()
 		{
 			$('#delete-btn').button('loading');
 			$.ajax({
-				url: '{{ uri_for("character-delete",
-				      key=character.key.urlsafe()) }}',
+				url: '{{ uri_for("character",
+				                 key=character.key.urlsafe()) }}',
 				type: 'DELETE',
-				data: { key: '{{ character.key.urlsafe() }}' }
 			})
 			.done(function ()
 			{

@@ -9,6 +9,8 @@ from google.appengine.ext import ndb
 
 import jinja2
 
+import json
+import logging
 import os
 
 import auth
@@ -62,10 +64,23 @@ class CharacterHandler(RequestHandler):
         return self.render('character', {'character': character})
 
     def create(self):
-        character = Character(name="New Character", owner=auth.current_user())
+        character = Character(owner=auth.current_user())
         character.put()
-        return self.redirect(uri_for('character-show',
+        return self.redirect(uri_for('character',
                                      key=character.key.urlsafe()))
+
+    def post(self, key):
+        character = ndb.Key(urlsafe=key).get()
+        form = json.loads(self.request.get('form'))
+        character.name = form['name']
+        character.race = form['race']
+        character.strength = int(form['str'])
+        character.dexterity = int(form['dex'])
+        character.constitution = int(form['con'])
+        character.intelligence = int(form['int'])
+        character.wisdom = int(form['wis'])
+        character.charisma = int(form['cha'])
+        character.put()
 
     def delete(self, key):
         character = ndb.Key(urlsafe=key).delete()
@@ -77,8 +92,6 @@ app = webapp2.WSGIApplication([
                   handler=CharacterListHandler),
     webapp2.Route(r'/character/create', name='character-create',
                   handler=CharacterHandler, handler_method='create'),
-    webapp2.Route(r'/character/<key>', name='character-show',
-                  handler=CharacterHandler),
-    webapp2.Route(r'/character/<key>', name='character-delete',
-                  handler=CharacterHandler, methods=['DELETE']),
+    webapp2.Route(r'/character/<key>', name='character',
+                  handler=CharacterHandler, methods=['GET', 'POST', 'DELETE']),
 ], debug=True)
