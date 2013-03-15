@@ -61,6 +61,7 @@ class CharacterListHandler(RequestHandler):
 class CharacterHandler(RequestHandler):
     def get(self, key):
         character = ndb.Key(urlsafe=key).get()
+        logging.info(character.classes)
         return self.render('character', {'character': character})
 
     def create(self):
@@ -80,6 +81,13 @@ class CharacterHandler(RequestHandler):
         character.intelligence = int(form['int'])
         character.wisdom = int(form['wis'])
         character.charisma = int(form['cha'])
+
+        try:
+            character.classes = dict(zip(form['class-name'],
+                                         form['class-level']))
+        except KeyError:
+            pass
+
         character.put()
 
     def delete(self, key):
